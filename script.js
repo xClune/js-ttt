@@ -1,6 +1,8 @@
 // Create the board:
+const game = GameController();
+
 function createBoard(){
-        const gridContainer = document.querySelector('.grid-container');
+        let gridContainer = document.querySelector('.grid-container');
 
         const rows = 3;
         const columns = 3;
@@ -26,8 +28,8 @@ function createBoard(){
             square.addEventListener('click', () => {
                 if (!square.classList.contains('selected')){
                     square.classList.toggle('selected');
-                    square.innerText = `${GameController().getActivePlayer()}`
-                    GameController().playRound(board[index])
+                    square.innerText = `${game.getActivePlayer()}`;
+                    game.playRound(board[index]);
                 }
             })
         }
@@ -41,9 +43,18 @@ function createBoard(){
             }
         }
 
+        // const resetBoard = () => {
+        //     for (let cell of board){
+        //         cell.selectSquare(0);
+        //     }
+        //     gridContainer.innerHTML = '';
+        //     createBoard();
+        // }
+
     return {
         getBoard,
-        checkSquare
+        checkSquare,
+        // resetBoard
     }
 }
 
@@ -67,6 +78,9 @@ function Cell() {
 // Game controller
 function GameController() {
     const board = createBoard();
+
+    let activePlayer = 'X';
+
     let gameText = document.querySelector('.game-text');
   
     const switchPlayerTurn = () => {
@@ -82,27 +96,49 @@ function GameController() {
 
         // change value of square to player token
         board.checkSquare(square, activePlayer);
+
+        boardState = (board.getBoard().map((cell) => cell.getValue()));
+
+        if (checkWinner(boardState)){
+            gameText.innerText = `${activePlayer} wins!`;
+            return;
+        }
     
         // Switch player turn
         switchPlayerTurn();
         printNewRound();
     };
+
     // Initial play game message
     printNewRound();
   
-    // For the console version, we will only use playRound, but we will need
-    // getActivePlayer for the UI version, so I'm revealing it now
     return {
       playRound,
       getActivePlayer
     };
 }
-
-var activePlayer = 'X';
-const game = GameController();
   
 // Determine winner
+function checkWinner(board) {
+    //Check for winner
+    const winCombos = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 4, 8],
+        [6, 4, 2],
+        [2, 5, 8],
+        [1, 4, 7],
+        [0, 3, 6],
+      ]
 
+    for (combo of winCombos) {
+        if (board[combo[0]] != 0 && board[combo[0]] === board[combo[1]] && board[combo[1]] === board[combo[2]]) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 
